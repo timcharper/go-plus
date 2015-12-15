@@ -18,9 +18,18 @@
 ;; - copy command to killring to run a test as apoint.
 ;; - compile and run a buffer / test suite.
 
+(require 'ansi-color)
+
+(defun colorize-compilation-buffer ()
+  (toggle-read-only)
+  (ansi-color-apply-on-region (point-min) (point-max))
+  (toggle-read-only))
+
 (defun go-plus:run-command-in-compile-mode (cmd)
-  (let* ((wrapped (format "bash -x -c %S" cmd)))
-    (compile wrapped)))
+  (let* ((wrapped (format "bash -x -c %S" cmd))
+         (buffer (compile wrapped)))
+    (set-buffer buffer)
+    (add-hook 'compilation-filter-hook 'colorize-compilation-buffer t)))
 
 (defun go-plus:compile-and-run-buffer ()
   "Run the current go file in a compile buffer"
